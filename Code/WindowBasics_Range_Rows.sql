@@ -220,35 +220,3 @@ GO
 
 
 
--- First value/last value
-select
-	player
-	, first_value(player) over
-	 (
-		order by player
-	 ) as 'First'
-	, last_value(player) over
-	 (
-		order by player
-	 ) as 'Last'
- from dbo.HomeRuns HR
- ;
-
-
--- get first and last, absolutely
-select
-	player
-	, first_value(player) over
-	 (
-		order by player
-		rows unbounded preceding
-	 ) as 'First'
-	, last_value(player) over
-	 (
-		order by player
-		rows between unbounded preceding and unbounded following
-	 ) as 'Last'
- from dbo.HomeRuns HR
- ;
-
- --
