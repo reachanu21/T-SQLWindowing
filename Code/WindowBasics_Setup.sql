@@ -11,12 +11,12 @@ This code is provided as is.
 CREATE DATABASE WindowDemo
 ;
 GO
-CREATE TABLE HomeRuns
-( hrid INT IDENTITY(1,1)
-, team VARCHAR(100)
-, player VARCHAR(100)
-, hrdate DATETIME
-, hrcount TINYINT
-)
-;
-GO
+--CREATE TABLE HomeRuns
+--( hrid INT IDENTITY(1,1)
+--, team VARCHAR(100)
+--, player VARCHAR(100)
+--, hrdate DATETIME
+--, hrcount TINYINT
+--)
+--;
+--GO
