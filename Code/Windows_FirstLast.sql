@@ -88,3 +88,22 @@ SELECT
  FROM dbo.HomeRuns
  ;
  GO
+
+
+ -- get first and last, absolutely
+select
+	player
+	, first_value(player) over
+	 (
+		order by player
+		rows unbounded preceding
+	 ) as 'First'
+	, last_value(player) over
+	 (
+		order by player
+		rows between unbounded preceding and unbounded following
+	 ) as 'Last'
+ from dbo.HomeRuns HR
+ ;
+
+ --
