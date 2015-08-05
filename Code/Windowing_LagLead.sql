@@ -8,6 +8,8 @@ Copyright 2014 Steve Jones
 This code is provided as is with no warranty implied.
 
 */
+USE WindowDemo
+GO
 
 
  -- ranges of no home runs
@@ -58,13 +60,13 @@ This code is provided as is with no warranty implied.
  -- ranges of no home runs
  SELECT 
 	player
-,	'Days Between HRs' = DATEDIFF(d, hrdate, NextHR) - 1
 ,	'CurrentHR' = hrdate
 ,	'NextHR' = LEAD(hrdate)
 				OVER (
 					PARTITION BY player
 					ORDER BY hrdate
 				)
+,	'Days Between HRs' = DATEDIFF(d, hrdate, NextHR) - 1
  FROM dbo.HomeRuns
  ORDER BY
 	player
@@ -76,10 +78,10 @@ This code is provided as is with no warranty implied.
 
 
 
--- error
+-- An error
 
 
--- can't use this, but we can with a CTE
+-- can't use this directly because the column doesn't exist, but we can with a CTE
 WITH HRGaps AS
 (
  SELECT 
@@ -105,7 +107,7 @@ select
 
 
 -- no home runs?
--- same technique
+-- Use the same technique
 WITH HRGaps AS
 (
  SELECT 
