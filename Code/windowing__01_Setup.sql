@@ -1,21 +1,20 @@
 /*
-windowing Demo Setup
+Windowing Demo Setup 
 
-Copyright 2014 Steve Jones
+Copyright 2015 Steve Jones
 
 This code is provided as is with no warranty.
 */
 
 /*
 -- If needed , create and use a DB
-
-create database WindowDemo
-;
+create database WindowDemo;
 go
-use WindowDemo
-go
-
 */
+
+USE WindowDemo
+go
+
 -- Create a table
 CREATE TABLE HomeRuns
 ( hrid INT IDENTITY(1,1)
