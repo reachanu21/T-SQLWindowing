@@ -1,7 +1,7 @@
 /*
 T-SQL Basic Windowing Queries
 
-Steve Jones, copyright 2014 
+Steve Jones, copyright 2015
 
 This code is provided as is for demonstration purposes. It may not be suitable for
 your environment. Please test this on your own systems. This code may not be republished 
@@ -9,6 +9,8 @@ or redistributed by anyone without permission.
 
 You are free to use this code inside of your own organization.
 */
+USE WindowDemo
+GO
 
 -- Simple Grouping by player
 SELECT 
@@ -25,6 +27,8 @@ Lonnie	1
 Nelson	11
 Troy	9
 */
+-- Counting rows (games) with a home run.
+-- These are NOT totals (sums)
 
 
 
@@ -34,8 +38,7 @@ Troy	9
 
 
 
-
--- group by player and team
+-- Now group by player and team
 SELECT team
     ,   player
     ,   COUNT(hrcount)
@@ -58,23 +61,17 @@ SELECT team
 
 
 
--- basic count
+-- Now a basic count with OVER()
 SELECT player
     ,   team
     ,   hrdate
     ,   COUNT(*) OVER ( )
     FROM dbo.HomeRuns;
 GO
-
-
-
-
-
-
-
-
-
--- Ugh.
+-- note, adding an additional column without changing anything
+-- other than the SELECT list. Also, no partion, so I get a complete 
+-- count of games for each row.
+-- But, ugh.
 -- there are 28 rows, so the count for each row is 28
 
 
@@ -89,7 +86,7 @@ GO
 
 
 
--- let's add a partition
+-- Let's add a partition. Get the count by team.
 SELECT player
     ,   team
     ,   hrdate
@@ -156,19 +153,18 @@ GO
 
 
 -- The partitioning really gives me Home Runs for each team.
--- let's remove player
-SELECT 
-		team
-    ,   hrdate
-    ,   SUM(HRcount) OVER ( PARTITION BY team )
-    FROM dbo.HomeRuns;
+-- let's remove player, so the results look more accurate.
+SELECT  team
+      , hrdate
+      , SUM(HRcount) OVER ( PARTITION BY team )
+FROM    dbo.HomeRuns;
 GO
 
 
 
 
 
-
+/* END */
 
 
 
