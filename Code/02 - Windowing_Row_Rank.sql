@@ -101,6 +101,18 @@ NYY Derek
 
 
 
+
+
+-----------------------------------------------------------
+-----------------------------------------------------------
+--
+--  Ranking
+--
+-----------------------------------------------------------
+-----------------------------------------------------------
+
+ 
+
 -- However, what if I want players by team
 SELECT  DENSE_RANK() OVER ( ORDER BY team ) AS TeamDenseRank
       , player
@@ -139,8 +151,16 @@ FROM    HomeRuns;
  
 
 
+
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+--   Better Demos
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+
 -- Why do this? For example, we can find duplicates.
--- We have players hitting home runs on the same day
+-- We have players hitting home runs on the same day. What are the dates?
 WITH    hrsource
           AS ( SELECT   ROW_NUMBER() OVER ( PARTITION BY hrdate ORDER BY ( SELECT
                                                               null
@@ -150,7 +170,8 @@ WITH    hrsource
              )
     SELECT  game
     FROM    hrsource
-    WHERE   hrgame > 1;
+    WHERE   hrgame > 1
+	ORDER BY game;
  GO
 
 
@@ -165,3 +186,80 @@ WITH    hrsource
     SELECT  game, hrgame
     FROM    hrsource
  GO
+
+
+-- get the players
+WITH    hrsource
+          AS ( SELECT   ROW_NUMBER() OVER ( PARTITION BY hrdate ORDER BY ( SELECT
+                                                              null
+                                                              ) ) AS hrgame
+                      , 'game' = hrdate
+               FROM     HomeRuns
+             )
+    SELECT  game,player
+    FROM    hrsource
+	 INNER JOIN dbo.HomeRuns
+	  ON hrsource.game = dbo.HomeRuns.hrdate
+    WHERE   hrgame > 1
+	ORDER BY game;
+ GO
+
+
+
+-- get data from dbo.Players
+-- NOT included in setup code
+-- let's get an ordering of home run hitters
+SELECT 
+ hrcount = ROW_NUMBER() OVER (PARTITION BY p.franchName ORDER BY hr DESC)
+,  p.nameFirst
+ , p.nameLast
+ , p.franchName
+ , p.HR
+  FROM  dbo.Players p
+
+
+
+
+-- get data from dbo.Players
+-- NOT included in setup code
+-- let's just get the top 3 per team.
+-- read more at http://www.sqlservercentral.com/articles/T-SQL/71571/ - Returning the Top X row for each group (SQL Spackle)
+WITH    HRCTE
+          AS ( SELECT   hrcount = ROW_NUMBER() OVER ( PARTITION BY p.franchName ORDER BY HR DESC )
+                      , p.nameFirst
+                      , p.nameLast
+                      , p.franchName
+                      , p.HR
+               FROM     dbo.Players p
+             )
+    SELECT  *
+    FROM    HRCTE
+    WHERE   hrcount <= 3;
+
+
+-- Let's add ranking functions
+-- go to top 5 to see differences (Diamondbacks v Orioles)
+;
+WITH    HRCTE
+          AS ( SELECT   hrorder = ROW_NUMBER() OVER ( PARTITION BY p.franchName ORDER BY HR DESC )
+                      , p.nameFirst
+                      , p.nameLast
+                      , p.franchName
+                      , p.HR
+               FROM     dbo.Players p
+             )
+    SELECT  hrdenserank = DENSE_RANK() OVER ( PARTITION BY HRCTE.franchName ORDER BY HR DESC )
+          , hrrank = RANK() OVER ( PARTITION BY HRCTE.franchName ORDER BY HR DESC )
+          , *
+    FROM    HRCTE
+    WHERE   HRCTE.hrorder <= 5;
+
+
+
+
+
+
+
+
+
+

@@ -50,8 +50,7 @@ SELECT team
 		team
 	  , player
 ;
-
-
+-- note, need to change GROUP BY
 
 
 
@@ -157,9 +156,10 @@ GO
 SELECT  team
       , hrdate
       , SUM(HRcount) OVER ( PARTITION BY team )
-FROM    dbo.HomeRuns;
+FROM    dbo.HomeRuns
+ORDER BY team, hrdate;
 GO
-
+--- 28 rows
 
 
 
@@ -173,10 +173,11 @@ SELECT distinct
 		team
     ,   hrdate
     ,   SUM(HRcount) OVER ( PARTITION BY team )
-    FROM dbo.HomeRuns;
+FROM    dbo.HomeRuns
+ORDER BY team, hrdate;
 GO
-
-
+-- 27 rows
+-- 2013-05-10 has 1 row now
 
 
 
@@ -207,6 +208,12 @@ SELECT DISTINCT hr
 GO
 
 
+-- This is simpler, but harder to maintain
+SELECT SUM( HRcount)
+, team
+FROM dbo.HomeRuns
+GROUP BY team
+;
 
 
 
@@ -397,7 +404,7 @@ Troy	COL		4/29/2013	1    7
 -- Next we create a total by month
 SELECT player
     ,   team
-    ,   'Month' = DATENAME(month, hrdate)
+    ,   'GameMonth' = DATENAME(month, hrdate)
     ,   'Total Home Runs' = 
 		SUM(HRcount) OVER 
 		   ( 
@@ -406,7 +413,7 @@ SELECT player
 			)
 	, HRcount
 	, hrdate
-    FROM dbo.HomeRuns;
+    FROM dbo.HomeRuns
 GO
 /*
 BAL < COL < NYY
@@ -451,15 +458,15 @@ Derek	NYY		6/24/2013	1    1 - new partition, 1 in June for Derek
 */
 
 -- Go to a running total by opening the framing clause to all rows before
-SELECT player
-    ,   team
-    ,   DATENAME(month, hrdate)
-    ,   SUM(HRcount) OVER ( 
-				PARTITION BY team, MONTH(hrdate)
-				ORDER BY team, player 
-				ROWS UNBOUNDED PRECEDING
-				)
-    FROM dbo.HomeRuns;
+SELECT  player
+      , team
+      , DATENAME(MONTH ,hrdate)
+      , hrdate
+      , HRcount
+      , TotalHRToDateInMonth = SUM(HRcount) OVER ( PARTITION BY team ,
+                                                   MONTH(hrdate) ORDER BY team, hrdate 
+				ROWS UNBOUNDED PRECEDING )
+FROM    dbo.HomeRuns;
 GO
 /*
 BAL < COL < NYY
@@ -509,7 +516,7 @@ Derek	NYY		6/24/2013	1    1 - new partition, 1 in June for Derek
 SELECT 
 		team
     ,   'Month' = DATENAME(month, hrdate)
-    ,   'Total Home Runs' = 
+    ,   'Total Home Runs to date' = 
 		SUM(HRcount) OVER ( 
 				PARTITION BY team, MONTH(hrdate)
 				ORDER BY team, hrdate
@@ -670,7 +677,7 @@ June - 1
 SELECT 
 		player
 	,	team
-    ,   DATENAME(month, hrdate)
+    ,   'Game Month' = DATENAME(month, hrdate)
 	,   'Game Running HR for month' = SUM(HRcount) OVER ( 
 							PARTITION BY MONTH(hrdate)
 							ORDER BY hrdate, team
