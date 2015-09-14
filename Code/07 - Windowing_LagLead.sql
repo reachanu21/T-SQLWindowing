@@ -42,7 +42,7 @@ GO
 					PARTITION BY player
 					ORDER BY hrdate
 				)
-				) - 1
+				) 
 ,	'CurrentHR' = hrdate
 ,	'NextHR' = LEAD(hrdate)
 				OVER (
@@ -73,11 +73,7 @@ GO
 	, hrdate
  ;
 
-
-
-
-
-
+ 
 -- An error
 
 
@@ -153,6 +149,8 @@ WITH    HRGaps
         ,   CurrentHR;
 
 
+
+
 -- lag
 -- how many days since I hit a home run?
 select 
@@ -200,12 +198,12 @@ select
 select 
   player
 , hrdate as 'Current Home Run game'
+, HRcount
 , lead(hrdate, 1, '') over
  (
 	partition by player
 	order by hrdate
  ) as 'next home run'
-, HRcount
 , isnull( cast(
 		 datediff( d, hrdate, lead(hrdate) over
 			(

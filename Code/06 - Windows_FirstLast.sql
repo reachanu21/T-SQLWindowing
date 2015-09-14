@@ -41,7 +41,7 @@ SELECT
 
 
 
--- default framing
+-- default framing - Unbounded preceeding and current row
 -- try again
  SELECT 
 	player
